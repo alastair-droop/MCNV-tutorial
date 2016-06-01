@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>MCNV-tutorial by alastair-droop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">MCNV-tutorial</h1>
+      <h2 class="project-tagline">Tutorial for using the MCNV package</h2>
+      <a href="https://github.com/alastair-droop/MCNV-tutorial" class="btn">View on GitHub</a>
+      <a href="https://github.com/alastair-droop/MCNV-tutorial/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/alastair-droop/MCNV-tutorial/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="introduction-to-the-mcnv-package" class="anchor" href="#introduction-to-the-mcnv-package" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction to the MCNV Package</h1>
+
+<h2>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h2>
+
+<p>Before using the MCNV software, there are some things you need:</p>
+
+<ol>
+<li>An understanding of <a href="https://www.r-project.org">R</a> and <a href="http://bioconductor.org">Bioconductor</a>;</li>
+<li>A working copy of both <a href="https://www.r-project.org">R</a> and <a href="http://bioconductor.org/install/">Bioconductor</a>;</li>
+<li>Access to the MCNV data on xserve (at <code>GED/GED-MCNV</code>).</li>
+</ol>
+
+<h3>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Before you can use the <code>MCNV</code> package, it must be installed. MCNV depends on several other packages, so you need to install them first. You also need to get a copy of the MCNV package. These are stored in the <code>GED-MCNV/package</code> folder. Get a local copy of the laters version, which will be named <code>mcnv_1.5-18.tar.gz</code> (for version 1.5-18). Do not uncompress the file; keep it as a compressed archive. Note that many web browsers will attempt to "open" known file types, and might decompress the file. Once you have a local copy of the MCNV package in the current directory, you can install it:</p>
+
+<div class="highlight highlight-source-r"><pre>source(<span class="pl-s"><span class="pl-pds">"</span>https://bioconductor.org/biocLite.R<span class="pl-pds">"</span></span>)
+biocLite(c(<span class="pl-s"><span class="pl-pds">"</span>GenomicRanges<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>DNAcopy<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>ggplot2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>SummarizedExperiment<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>S4Vectors<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>GenomeInfoDb<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>parallel<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>GenomeInfoDb<span class="pl-pds">"</span></span>))
+install.packages(<span class="pl-s"><span class="pl-pds">'</span>./mcnv_1.5-18.tar.gz<span class="pl-pds">'</span></span>, <span class="pl-v">repos</span><span class="pl-k">=</span><span class="pl-c1">NULL</span>)</pre></div>
+
+<h3>
+<a id="testing" class="anchor" href="#testing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing</h3>
+
+<p>You can test if the MCNV package is correctly installed by:</p>
+
+<div class="highlight highlight-source-r"><pre>library(<span class="pl-smi">mcnv</span>)
+data(<span class="pl-smi">counts</span>)
+data(<span class="pl-smi">segments</span>)
+<span class="pl-smi">p</span> <span class="pl-k">&lt;-</span> plotMCNVSample(<span class="pl-smi">counts</span>, <span class="pl-v">segments</span><span class="pl-k">=</span><span class="pl-smi">segments</span>, <span class="pl-v">sample</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>CTTE0783134B32D11E381403C07545108A8<span class="pl-pds">"</span></span>)
+plot(<span class="pl-smi">p</span>)</pre></div>
+
+<p>The results should look like this:</p>
+
+<p><img src="./images/example-plot.png" alt="Example MCNV Plot"></p>
+
+<p>If you do not get an output plot that looks like the above, check the error messages that R has returned.</p>
+
+<h2>
+<a id="window-counts" class="anchor" href="#window-counts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Window Counts</h2>
+
+<p>The basic data object used for the MCNV is the <code>mcnvWindowCounts</code> object. This is based upon the <a href="http://www.bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html">SummarizedExperiment</a> class. This object holds data for each window for multiple samples. Each <em>row</em> in the dataset corresponds to a single window, and each column a single sample.</p>
+
+<p>The <code>counts</code> dataset which is included in the MCNV pakage is an example of the <code>mcnvWindowCounts</code> object. Load it as:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)</pre></div>
+
+<h3>
+<a id="windows" class="anchor" href="#windows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows</h3>
+
+<p>The windows contained within the <code>counts</code> object can be extracted using the <code>windows()</code> function. Look at <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GenomicRangesIntroduction.pdf">GenomicRanges</a> documentation for the underlying GRanges class. The resulting window object can be treated as a <code>data.frame</code>, but has many useful features. Most usefully, you can get intersections between a genomic range and a set of windows using <code>subsetByOverlaps</code>:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)
+<span class="pl-smi">w</span> <span class="pl-k">&lt;-</span> windows(<span class="pl-smi">counts</span>) <span class="pl-c"># Extract the windows</span>
+length(<span class="pl-smi">w</span>) <span class="pl-c"># How many windows are there?</span>
+range(<span class="pl-smi">w</span>) <span class="pl-c"># The complete range covered by the windows</span>
+seqnames(<span class="pl-smi">w</span>) <span class="pl-c"># The sequence names (i.e. the chromosomes)</span>
+start(<span class="pl-smi">w</span>) <span class="pl-c"># The start positions of the windows</span>
+end(<span class="pl-smi">w</span>) <span class="pl-c"># The end positions</span>
+
+<span class="pl-c"># Subset the windows by a range:</span>
+data(<span class="pl-smi">genome</span>)
+<span class="pl-smi">r</span> <span class="pl-k">&lt;-</span> intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9:21000000-22000000<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+subsetByOverlaps(<span class="pl-smi">w</span>, <span class="pl-smi">r</span>)</pre></div>
+
+<p>Note that you don't need to extract the windows from <code>counts</code> in order to do this subsetting:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)
+data(<span class="pl-smi">genome</span>)
+<span class="pl-smi">r</span> <span class="pl-k">&lt;-</span> intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9:21000000-22000000<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+subsetCounts(<span class="pl-smi">counts</span>, <span class="pl-smi">r</span>)</pre></div>
+
+<p>Each window contains multiple values, including the type, mappability, and the number of A, C, G, T and N bases. You can extract these as a DataFrame using <code>rowData(counts)</code>.</p>
+
+<h3>
+<a id="samples" class="anchor" href="#samples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Samples</h3>
+
+<p>The sample data contined in the <code>counts</code> object can be accessed as <code>colData(counts)</code>. The returned object is a DataFrame continaing the sample metadata:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)
+<span class="pl-smi">d</span> <span class="pl-k">&lt;-</span> colData(<span class="pl-smi">counts</span>)
+<span class="pl-smi">d</span>
+<span class="pl-smi">d</span><span class="pl-k">$</span><span class="pl-smi">group</span>
+<span class="pl-smi">d</span><span class="pl-k">$</span><span class="pl-smi">flowcell</span></pre></div>
+
+<h3>
+<a id="sample-data" class="anchor" href="#sample-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sample Data</h3>
+
+<p>The <code>counts</code> object contains multiple datasets, for each sample and each window. You can see which datasets are included using <code>assays(counts)</code>. The datasets are:</p>
+
+<ul>
+<li>
+<code>rawCounts</code> containing the raw read counts per window;</li>
+<li>
+<code>correctedCounts</code> containing the corrected log read counts per window; and</li>
+<li>
+<code>smoothedCOunts</code> containing the smoothed corrected counts per window (Don't use these).</li>
+</ul>
+
+<p>You can extract these easily:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)
+<span class="pl-smi">r</span> <span class="pl-k">&lt;-</span> rawCounts(<span class="pl-smi">counts</span>)
+<span class="pl-smi">d</span> <span class="pl-k">&lt;-</span> correctedCounts(<span class="pl-smi">counts</span>)</pre></div>
+
+<h2>
+<a id="segments" class="anchor" href="#segments" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Segments</h2>
+
+<p>Corrected data contained within the counts object are stored as a GRangesList. See the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/GenomicRangesIntroduction.pdf">GenomicRanges</a> documentation for more information. Each sample is stored as a separate GRanges dataset, as segments are in different locations per sample, so can't be made into regular matrix-like objects.</p>
+
+<p>Subsetting a single GRanges object is as described for windows, but to subset the whole of a segments dataset, you can use the <code>subsetSegments()</code> function:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">segments</span>)
+data(<span class="pl-smi">genome</span>)
+<span class="pl-smi">r</span> <span class="pl-k">&lt;-</span> intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9:21000000-22000000<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+subsetSegments(<span class="pl-smi">segments</span>, <span class="pl-smi">r</span>)</pre></div>
+
+<h2>
+<a id="plotting" class="anchor" href="#plotting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plotting</h2>
+
+<p>The base plotting function is <code>plotMCNVSample</code>. This function produces an individual plot for a single sample:</p>
+
+<div class="highlight highlight-source-r"><pre>data(<span class="pl-smi">counts</span>)
+data(<span class="pl-smi">segments</span>)
+data(<span class="pl-smi">genome</span>)
+<span class="pl-smi">r</span> <span class="pl-k">&lt;-</span> intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9:21000000-24000000<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+<span class="pl-smi">p</span> <span class="pl-k">&lt;-</span> plotMCNVSample(<span class="pl-smi">counts</span>, <span class="pl-v">segments</span><span class="pl-k">=</span><span class="pl-smi">segments</span>, <span class="pl-v">sample</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>CTTE0783134B32D11E381403C07545108A8<span class="pl-pds">"</span></span>, <span class="pl-v">region</span><span class="pl-k">=</span><span class="pl-smi">r</span>)
+plot(<span class="pl-smi">p</span>)</pre></div>
+
+<p>Multiple options can be specified, including background annotations.  For example, to include the position of <em>CDKN2A</em> as a coloured bar behind the points, the following code can be used:</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-c"># Build the annotation for CDKN2A &amp; CDKN2B:</span>
+<span class="pl-smi">annot</span> <span class="pl-k">&lt;-</span> intervalRange(c(<span class="pl-s"><span class="pl-pds">"</span>chr9:21966929-21967751<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>chr9:22002903-22009313<span class="pl-pds">"</span></span>), <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+<span class="pl-smi">annot</span><span class="pl-k">$</span><span class="pl-smi">colour</span> <span class="pl-k">&lt;-</span> <span class="pl-c1">NA</span> <span class="pl-c"># Don't show a rectangle round the box</span>
+<span class="pl-smi">annot</span><span class="pl-k">$</span><span class="pl-smi">fill</span> <span class="pl-k">&lt;-</span> c(<span class="pl-s"><span class="pl-pds">"</span>navy<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>orange<span class="pl-pds">"</span></span>) <span class="pl-c"># The colours for the annotation boxes</span>
+<span class="pl-smi">annot</span><span class="pl-k">$</span><span class="pl-smi">alpha</span> <span class="pl-k">&lt;-</span> <span class="pl-c1">0.001</span> <span class="pl-c"># Make the boxes transparent</span>
+
+<span class="pl-c"># Plot the data:</span>
+<span class="pl-smi">region</span> <span class="pl-k">&lt;-</span> intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9:21900000-22100000<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>)
+<span class="pl-smi">p</span> <span class="pl-k">&lt;-</span> plotMCNVSample(<span class="pl-smi">counts</span>, <span class="pl-v">segments</span><span class="pl-k">=</span><span class="pl-smi">segments</span>, <span class="pl-v">sample</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>CTTE0783134B32D11E381403C07545108A8<span class="pl-pds">"</span></span>, <span class="pl-v">annotation</span><span class="pl-k">=</span><span class="pl-smi">annot</span>, <span class="pl-v">region</span><span class="pl-k">=</span><span class="pl-smi">region</span>, <span class="pl-v">segment.colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>black<span class="pl-pds">'</span></span>)
+plot(<span class="pl-smi">p</span>)</pre></div>
+
+<p>The <code>counts</code> and <code>segments</code> objects only show data for the 4Mb <em>CDKN2A</em> region. The complete data are in the <code>GED/GED-MCNV/data/corrected/</code> and <code>GED/GED-MCNV/data/segmented/</code> folders. You can load these directly into R using <code>load()</code>. After this, whole genome plots are simple:</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-c"># Load the 10 data (NB: You'll need the correct path here):</span>
+load(<span class="pl-s"><span class="pl-pds">'</span>GED-MCNV/data/corrected/counts-10k.RData<span class="pl-pds">'</span></span>)
+load(<span class="pl-s"><span class="pl-pds">'</span>GED-MCNV/data/segmented/segments-10k.RData<span class="pl-pds">'</span></span>)
+
+<span class="pl-c"># Plot the complete genome for one sample:</span>
+<span class="pl-smi">p</span> <span class="pl-k">&lt;-</span> plotMCNVSample(<span class="pl-smi">counts10k</span>, <span class="pl-v">segments</span><span class="pl-k">=</span><span class="pl-smi">segments10k.corrected</span>, <span class="pl-v">sample</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>CTTE0783134B32D11E381403C07545108A8<span class="pl-pds">"</span></span>, <span class="pl-v">segment.colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>black<span class="pl-pds">"</span></span>)
+plot(<span class="pl-smi">p</span>)
+
+<span class="pl-c"># Plot just chromosome 9:</span>
+<span class="pl-smi">p</span> <span class="pl-k">&lt;-</span> plotMCNVSample(<span class="pl-smi">counts10k</span>, <span class="pl-v">segments</span><span class="pl-k">=</span><span class="pl-smi">segments10k.corrected</span>, <span class="pl-v">sample</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>CTTE0783134B32D11E381403C07545108A8<span class="pl-pds">"</span></span>, <span class="pl-v">segment.colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>black<span class="pl-pds">"</span></span>, <span class="pl-v">region</span><span class="pl-k">=</span>intervalRange(<span class="pl-s"><span class="pl-pds">"</span>chr9<span class="pl-pds">"</span></span>, <span class="pl-v">genome</span><span class="pl-k">=</span><span class="pl-smi">genome</span>))
+plot(<span class="pl-smi">p</span>)</pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/alastair-droop/MCNV-tutorial">MCNV-tutorial</a> is maintained by <a href="https://github.com/alastair-droop">alastair-droop</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
